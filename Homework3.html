@@ -1,0 +1,329 @@
+<html> 
+<head>
+	<title>3035 Game!</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			up = function() {
+				gamePlay("U");
+				gameMap();
+			}
+			left = function() {
+				gamePlay("L");
+				gameMap();
+			}
+			right = function() {
+				gamePlay("R");
+				gameMap();
+			}
+			down = function() {
+				gamePlay("D");
+				gameMap();
+			}
+			fight = function() {
+				fightTheStars(Universe[Starr.x][Starr.y]);
+			}
+
+			var Starr = {
+				status: "Alive",
+				life: 150,
+				prizes: [],
+				x: 0,
+				y: 0,
+				win: false,
+				direction: "",
+				challenge: function() {
+					UniverseMap[Starr.x][Starr.y] = "G";;
+					if (this.prizes.length >= 2) {
+						this.win = true;
+						$("button").hide();
+						return "YOU WIN!!!";
+					}
+					else return "You've flown over Earth but you can't reach it yet!";
+				}
+			};
+
+			var W = {
+				name: "W",
+				challenge: function(object) {
+					UniverseMap[object.x][object.y] = "W";
+					if (object.direction == "L") object.y += 1;
+					else if (object.direction == "R") object.y -= 1;
+					else if (object.direction == "U") object.x += 1;
+					else if (object.direction == "D") object.x -= 1;
+					return "You've hit a Wall. Please try another way.";
+
+				}
+			};
+
+			var P1 = {
+				name: "P1",
+				prompt: "Space Ship",
+				challenge: function(object) {
+					if (!object.prizes.includes(P1.prompt)){ 
+						object.prizes.push(P1.prompt);
+						UniverseMap[object.x][object.y] = "P";
+						return "You got the " + P1.prompt + "!";
+					}
+				}
+			};
+
+			var P2 = {
+				name: "P2",
+				prompt: "Lazer Beam",
+				challenge: function(object) {
+					if (!object.prizes.includes(P2.prompt)){ 
+						object.prizes.push(P2.prompt);
+						UniverseMap[object.x][object.y] = "P";
+						return "You got the " + P2.prompt + "!";
+					}
+				}
+			};
+
+			var Sagittarius = {
+				name: "Sagittarius", life: 75, status: true, prize: "Sight", pass: false, fighting: false,
+				challenge: function(object) {
+					UniverseMap[object.x][object.y] = "C";
+					return "FIGHT???";
+				},
+			};
+
+			var Cancer = {
+				name: "Cancer", life: 100, status: true, prize: "Telepathy", pass: false, 
+				challenge: function(object) {
+					UniverseMap[object.x][object.y] = "C";
+					return "FIGHT???";
+				},
+			};
+
+			var Gemini = {
+				name: "Gemini", life: 50, status: true, prize: "Telekinesis", pass: false, 
+				challenge: function(object) {
+					UniverseMap[object.x][object.y] = "C";
+					return "FIGHT???";
+				},
+			};
+
+			var Leo = {
+				name: "Leo", life: 50, status: true, prize: "Fire", pass: false, 
+				challenge: function(object) {
+					UniverseMap[object.x][object.y] = "C";
+					return "FIGHT???";
+				},
+			};
+
+			var Aquarius = {
+				name: "Aquarius", life: 75, status: true, prize: "Water", pass: false, 
+				challenge: function(object) {
+					UniverseMap[object.x][object.y] = "C";
+					return "FIGHT???";
+				},
+			};
+
+			var Universe = [
+				[" ", Aquarius," "," "," "," "," "," "],
+				[" ","P1","W",Sagittarius," ","P2"," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," ","W"," "," ",Cancer," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," ","W"," "," "," "," "," "],
+				[" ",Leo," "," "," "," ",Gemini," "],
+				[" "," "," "," "," "," "," "," "],
+			];
+
+			var UniverseMap = [
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+				[" "," "," "," "," "," "," "," "],
+			];
+
+			var startingX = Math.floor((Math.random() * 7) + 0);
+			var startingY = Math.floor((Math.random() * 7) + 0);
+			var endingX = Math.floor((Math.random() * 7) + 0);
+			var endingY = Math.floor((Math.random() * 7) + 0);
+			while (Universe[startingX][startingY] != " ") {
+				startingX = Math.floor((Math.random() * 7) + 0);
+				startingY = Math.floor((Math.random() * 7) + 0);
+			}
+			Starr.x = startingX;
+			Starr.y = startingY;
+			Universe[startingX][startingY] = "S";
+			UniverseMap[startingX][startingY] = "S";
+			while (Universe[endingX][endingY] != " ") {
+				endingX = Math.floor((Math.random() * 7) + 0);
+				endingY = Math.floor((Math.random() * 7) + 0);
+			}
+			Universe[endingX][endingY] = "G";
+
+			function gamePlay(move) {
+				if(Starr.status) {
+					var gameScript = "";
+					var doAgain = true;
+					Starr.direction = move;
+					if (move == "L" && Starr.y != 0) Starr.y -= 1;
+					else if (move == "R" && Starr.y != 7) Starr.y += 1;
+					else if (move == "U" && Starr.x != 0) Starr.x -= 1;
+					else if (move == "D" && Starr.x != 7) Starr.x += 1;
+					else {
+						gameScript = "You've hit the boundtries. Please choose another direction.";
+						doAgain = false;
+					}
+
+					if (doAgain) { 
+						var whatToDo = Universe[Starr.x][Starr.y];
+						if(whatToDo === "W") gameScript = W.challenge(Starr);
+						else if(whatToDo === "P1") gameScript = P1.challenge(Starr);
+						else if(whatToDo === "P2") gameScript = P2.challenge(Starr);
+						else if(whatToDo === "G") gameScript = Starr.challenge();
+						else if(whatToDo === " ") {
+							UniverseMap[Starr.x][Starr.y] = "*";
+							gameScript = "Keep on looking. You only have all of Space left to search!";
+						}
+						else if(whatToDo !== " ") gameScript = Universe[Starr.x][Starr.y].challenge(Starr);
+					}
+
+					$("#life").text(Starr.life);
+					$("#prizenumber").text(Starr.prizes.length);
+					$("#" + Starr.x + Starr.y).text(UniverseMap[Starr.x][Starr.y]);
+					$("#gameScript").text(gameScript);
+				}
+				else {
+					$("#gameScript").text("YOU DIED!!!");
+					$("button").hide();
+				}
+
+			}
+
+			function gameMap() {
+				for (var i = 0; i <= 7; i++) {
+					for (var j = 0; j <= 7; j++) {
+						$("#" + i + j).text(UniverseMap[i][j]);
+					};
+				};
+
+				if (Starr.win) $("#" + Starr.x + Starr.y).text("G");
+				else $("#" + Starr.x + Starr.y).text("H");
+			}
+
+			function fightTheStars(object) {
+				var returningText = "";
+				if (!(typeof Universe[Starr.x][Starr.y] === 'object')) returningText = "You can't fight Space!"
+				else {
+					if(object.pass) returningText = "You defeated " + object.name + " already!";
+					else {
+						returningText = "You encountered " + object.name + "! ";
+						if (Starr.life > 0 && object.life > 0){
+							var hit = Math.floor((Math.random() * 2) + 1);
+							if(hit == 1) {
+								returningText += object.name + " lost 50hp.";
+								object.life -= 30;
+							}
+							else {
+								returningText += " Starr lost 50hp.";
+								Starr.life -= 30;
+							}
+
+							if (object.life <= 0){ 
+								object.status = false;
+								object.pass = true;
+								Starr.prizes.push(object.prize);
+								returningText += " You defeated " + object.name;
+							}
+							else if (Starr.life <= 0) Starr.status = false;
+						}
+					}
+				}    
+				$("#life").text(Starr.life);
+				$("#prizenumber").text(Starr.prizes.length);
+				$("#" + Starr.x + Starr.y).text(UniverseMap[Starr.x][Starr.y]);
+				$("#gameScript").text(returningText);
+
+			}
+		});
+	</script>
+
+
+	<style>
+		td {
+			display: table-cell;
+			width : 20px; 
+			height: 20px;
+			background-color: #99cc00;
+			text-align: center;
+		}
+
+		table.mytable {
+			border-collapse: separate;
+			empty-cells: show;
+			border-width : 5px;
+			background-color: #f4ffff;
+			text-align:center;
+		}	
+		button {
+			width: 40px;
+			height: 40px;
+			text-align:center;
+		}
+	</style> 
+</head>
+
+
+<body>
+	<center><h1>Text Game</h1></center>
+	<div class="container">		
+		<p>Hello Starr. You have waken up in space, and must get at least two items from your ship or the
+			Zodiac Signs to go back to Earth. You're currently at position S. Find your way across space to go home BEFORE YOUR OXYGEN RUNS OUT.</p>
+		<p>Oxygen Level: <span id = "life">150</span></p>
+		<p>Prizes: <span id="prizenumber">0</span></p>
+		<p><span id="gameScript">Let's begin!</span></p>
+		<table id = "mytable" width="100%" border="1" cellpadding="20" cellspacing="20" style="background-color: #f4ffff;">
+			<tr>
+				<td id="00">X</td><td id="01">X</td><td id="02">X</td><td id="03">X</td><td id="04">X</td><td id="05">X</td><td id="06">X</td><td id="07">X</td>
+			</tr>
+			<tr>
+				<td id="10">X</td><td id="11">X</td><td id="12">X</td><td id="13">X</td><td id="14">X</td><td id="15">X</td><td id="16">X</td><td id="17">X</td>
+			</tr>
+			<tr>
+				<td id="20">X</td><td id="21">X</td><td id="22">X</td><td id="23">X</td><td id="24">X</td><td id="25">X</td><td id="26">X</td><td id="27">X</td>
+			</tr>
+			<tr>
+				<td id="30">X</td><td id="31">X</td><td id="32">X</td><td id="33">X</td><td id="34">X</td><td id="35">X</td><td id="36">X</td><td id="37">X</td>
+			</tr>
+			<tr>
+				<td id="40">X</td><td id="41">X</td><td id="42">X</td><td id="43">X</td><td id="44">X</td><td id="45">X</td><td id="46">X</td><td id="47">X</td>
+			</tr>
+			<tr>
+				<td id="50">X</td><td id="51">X</td><td id="52">X</td><td id="53">X</td><td id="54">X</td><td id="55">X</td><td id="56">X</td><td id="57">X</td>
+			</tr>
+			<tr>
+				<td id="60">X</td><td id="61">X</td><td id="62">X</td><td id="63">X</td><td id="64">X</td><td id="65">X</td><td id="66">X</td><td id="67">X</td>
+			</tr>
+			<tr>
+				<td id="70">X</td><td id="71">X</td><td id="72">X</td><td id="73">X</td><td id="74">X</td><td id="75">X</td><td id="76">X</td><td id="77">X</td>
+			</tr>
+		</table>
+
+		<br/>
+		<center>
+			<table>
+				<tr>
+					<th></th><th><button class="btn-warning" onclick = "up()">&uarr;</button></th><th></th>
+				</tr>
+				<tr>
+					<th><button class="btn-warning" onclick = "left()">&larr;</button></th><th><button id="fighting" class="btn-danger" onclick="fight()">&#8812;</button></th><th><button class="btn-warning" onclick = "right()">&rarr;</button></th>
+				</tr>
+				<tr>
+					<th></th><th><button class="btn-warning" onclick = "down()">&darr;</button></th><th></th>
+				</tr>
+			</table> 
+		</center>
+		<br/>
+	</div>
+</body>
+</html>
